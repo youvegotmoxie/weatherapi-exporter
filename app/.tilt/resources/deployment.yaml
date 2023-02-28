@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wapi
+  namespace: wapi
+spec:
+  selector:
+    matchLabels:
+      app: wapi
+  template:
+    metadata:
+      labels:
+        app: wapi
+    spec:
+      containers:
+      - name: wapi
+        image: wapi
+        command: ["gunicorn"]
+        args: ["-w", "1", "app:app", "-b", "0.0.0.0:8080", "--access-logfile", "/dev/stdout", "--error-logfile", "/dev/stderr"]
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 8080
+          name: http
+        readinessProbe:
+          httpGet:
+            port: http

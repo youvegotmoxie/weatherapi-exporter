@@ -1,0 +1,39 @@
+# Allow deploying to k8s-us-east-1
+allow_k8s_contexts('k8s-us-east-1')
+
+# Always use docker hub
+default_registry('docker.io/youvegotmoxie')
+
+# Build container
+docker_build(
+  "wapi",
+  context = '../../docker',
+  dockerfile = '../../docker/Dockerfile',
+  extra_tag='wapi:dev',
+  live_update = [
+    sync('../../docker/src/requirements.txt', '/home/wapi/requirements.txt'),
+    sync('../../docker/src/app.py', '/usr/src/app/app.py'),
+    run (
+      'pip3 install --no-cache-dir -r /home/wapi/requirements.txt',
+      trigger = '../../docker/src/requirements.txt'
+    ),
+  ]
+)
+
+# Keep container images in check
+docker_prune_settings(keep_recent = 2, num_builds = 5)
+
+# Deploy to k8s
+k8s_yaml(['resources/deployment.yaml',
+  'resources/service.yaml',
+  'resources/namespace.yaml'
+])
+
+k8s_resource(
+  workload = 'wapi',
+  labels = ['wapi'],
+  objects=[
+    'wapi:namespace'
+  ],
+  pod_readiness = 'wait'
+)

@@ -1,0 +1,74 @@
+# Default values for wapi.
+
+replicaCount: 1
+
+image:
+  repository: docker.io/youvegotmoxie/wapi
+  pullPolicy: Always
+  tag: "v0.0.3"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+
+podLabels:
+  app: wapi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-dns01-aws
+  hosts:
+    - host: wapi.unreliable.cloud
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+  - secretName: wapi-tls
+    hosts:
+    - wapi.unreliable.cloud
+
+app:
+  apiKey: "vault:secret/data/weatherapi#API_KEY"
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

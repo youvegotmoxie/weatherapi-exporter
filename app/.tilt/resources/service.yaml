@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wapi
+  namespace: wapi
+  annotations:
+    load-balancer.hetzner.cloud/ipv6-disabled: "true"
+    load-balancer.hetzner.cloud/location: ash
+    external-dns.alpha.kubernetes.io/hostname: wapi.k8s.unreliable.cloud
+    prometheus.io/port: '8080'
+    prometheus.io/path: '/weather/53716'
+    prometheus.io/scrape: "true"
+  labels:
+    app: wapi
+spec:
+  selector:
+    app: wapi
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster

@@ -1,0 +1,4 @@
+requests
+Flask
+prometheus-client
+gunicorn
