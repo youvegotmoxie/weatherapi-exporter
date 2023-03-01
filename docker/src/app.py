@@ -42,7 +42,7 @@ def get_weather(location: str):
     "precipitation": f"{requestBody['current']['precip_in']}",
     "cloud_cover": f"{requestBody['current']['cloud']}",
     "uv_index": f"{requestBody['current']['uv']}",
-    "visibility": f"{requestBody['current']['vis_miles']}",
+    "visibility": f"{requestBody['current']['vis_miles']}"
   }
 
   # TODO: make this not shit
