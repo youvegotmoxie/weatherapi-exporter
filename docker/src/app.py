@@ -9,6 +9,7 @@ apiKey = os.environ.get('API_KEY')
 
 app = Flask(__name__)
 
+# TODO: make this not shit
 curTemp = Gauge("current_temperature", "Current temperature in F", labelnames=['city', 'state'])
 curWindSpeed = Gauge("current_wind_speed", "Current wind speed in MPH", labelnames=['city', 'state'])
 curWindDir = Gauge("current_wind_direction", "Current wind direction in degrees", labelnames=['city', 'state'])
@@ -44,6 +45,7 @@ def get_weather(location: str):
     "visibility": f"{requestBody['current']['vis_miles']}",
   }
 
+  # TODO: make this not shit
   curTemp.labels(area_info['city'], area_info['state']).set(weather_info['temp'])
   curWindSpeed.labels(area_info['city'], area_info['state']).set(weather_info['wind_speed'])
   curWindDir.labels(area_info['city'], area_info['state']).set(weather_info['wind_direction'])
