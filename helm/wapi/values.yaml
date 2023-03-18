@@ -5,7 +5,7 @@ replicaCount: 1
 image:
   repository: docker.io/youvegotmoxie/wapi
   pullPolicy: Always
-  tag: "v0.0.3"
+  tag: "v0.0.4"
 
 imagePullSecrets: []
 nameOverride: ""
