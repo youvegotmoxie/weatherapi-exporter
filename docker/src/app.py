@@ -1,5 +1,5 @@
 import requests, os
-from flask import Flask, redirect, request
+from flask import Flask, redirect
 from prometheus_client import Gauge, Info, make_wsgi_app
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
@@ -24,7 +24,6 @@ def root():
 
 @app.route("/weather/<location>", methods=['GET'])
 def get_weather(location: str):
-  raw_header = request.headers.get('X-WAPI-RAW', False)
   apiQuery = f"{apiBaseUrl}/{apiEndpoint}?key={apiKey}&q={location}&aqi=yes"
   request = requests.get(apiQuery)
   requestBody = request.json()
@@ -59,10 +58,7 @@ def get_weather(location: str):
   area_info.update(weather_info)
   wInfo.info(area_info)
 
-  if raw_header is True:
-    return area_info
-  else:
-    return redirect("/metrics")
+  return redirect("/metrics")
 
 app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {'/metrics': make_wsgi_app()})
 
