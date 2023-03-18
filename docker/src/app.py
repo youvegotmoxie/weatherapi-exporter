@@ -23,7 +23,12 @@ wInfo = Info('current_weather_all', 'Full weather details for location')
 
 @app.route("/", methods=['GET'])
 def root():
-  return {"status": "ok"}
+  if os.path.exists('/proc/uptime'):
+    with open('/proc/uptime', 'r') as up:
+      uptime = up.read()
+    return {"status": "ok", "uptime": f"{uptime.split(' ')[0]}"}
+  else:
+    return {"status": "ok"}
 
 @app.route("/weather/<location>", methods=['GET'])
 def get_weather(location: str):
