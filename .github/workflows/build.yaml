@@ -10,7 +10,7 @@ env:
   CONTEXT: docker
   CHART_PATH: helm/wapi
   REGISTRY_BASE: docker.io
-  TAG: "0.0.5"
+  TAG: "0.0.4"
 
 jobs:
   build-and-push:
