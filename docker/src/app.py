@@ -21,17 +21,12 @@ wInfo = Info('current_weather_all', 'Full weather details for location')
 
 @app.route("/", methods=['GET'])
 def root():
-  wapi_custom_headers = flask_request.headers.get('X-WAPI-Custom', None)
-
-  match wapi_custom_headers:
-    case "raw":
-      return {"status": "raw"}
-    case _:
-      return {"status": "ok"}
+  return {"status": "ok"}
 
 @app.route("/weather/<location>", methods=['GET'])
 def get_weather(location: str):
   wapi_custom_headers = flask_request.headers.get('X-WAPI-Custom', None)
+
   apiQuery = f"{apiBaseUrl}/{apiEndpoint}?key={apiKey}&q={location}&aqi=yes"
   request = requests.get(apiQuery)
   requestBody = request.json()
