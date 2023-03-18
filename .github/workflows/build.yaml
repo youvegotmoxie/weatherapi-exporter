@@ -62,7 +62,7 @@ jobs:
           commit_user_name: GitHub Actions
           commit_author: Author <github-actions@undependable.cloud>
           create_branch: false
-          branch: main
+          branch: master
       - uses: ravsamhq/notify-slack-action@master
         if: always()
         with:
