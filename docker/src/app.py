@@ -1,5 +1,5 @@
 import requests, os
-from flask import Flask, redirect
+from flask import Flask, redirect, request
 from prometheus_client import Gauge, Info, make_wsgi_app
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
@@ -24,6 +24,7 @@ def root():
 
 @app.route("/weather/<location>", methods=['GET'])
 def get_weather(location: str):
+  raw_header = request.headers.get('X-WAPI-RAW', False)
   apiQuery = f"{apiBaseUrl}/{apiEndpoint}?key={apiKey}&q={location}&aqi=yes"
   request = requests.get(apiQuery)
   requestBody = request.json()
@@ -45,18 +46,23 @@ def get_weather(location: str):
     "visibility": f"{requestBody['current']['vis_miles']}"
   }
 
+  city, state = area_info['city'], area_info['state']
+
   # TODO: make this not shit
-  curTemp.labels(area_info['city'], area_info['state']).set(weather_info['temp'])
-  curWindSpeed.labels(area_info['city'], area_info['state']).set(weather_info['wind_speed'])
-  curWindDir.labels(area_info['city'], area_info['state']).set(weather_info['wind_direction'])
-  curPrecip.labels(area_info['city'], area_info['state']).set(weather_info['precipitation'])
-  curHumid.labels(area_info['city'], area_info['state']).set(weather_info['humidity'])
-  curUV.labels(area_info['city'], area_info['state']).set(weather_info['uv_index'])
+  curTemp.labels(city, state).set(weather_info['temp'])
+  curWindSpeed.labels(city, state).set(weather_info['wind_speed'])
+  curWindDir.labels(city, state).set(weather_info['wind_direction'])
+  curPrecip.labels(city, state).set(weather_info['precipitation'])
+  curHumid.labels(city, state).set(weather_info['humidity'])
+  curUV.labels(city, state).set(weather_info['uv_index'])
 
   area_info.update(weather_info)
   wInfo.info(area_info)
 
-  return redirect("/metrics")
+  if raw_header is True:
+    return area_info
+  else:
+    return redirect("/metrics")
 
 app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {'/metrics': make_wsgi_app()})
 
