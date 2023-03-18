@@ -10,7 +10,7 @@ env:
   CONTEXT: docker
   CHART_PATH: helm/wapi
   REGISTRY_BASE: docker.io
-  TAG: "0.0.4"
+  TAG: "0.0.5"
 
 jobs:
   build-and-push:
@@ -19,10 +19,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v2
-      - name: Get the version and build container
         id: get_commit_sha_short
         if: github.event.pull_request.merged == true
-        run: echo "::set-output name=GIT_TAG_NAME::$(git rev-parse --short HEAD)"
       - uses: docker/login-action@v2
         if: github.event.pull_request.merged == true
         with:
