@@ -35,6 +35,7 @@ service:
 
 podLabels:
   app: wapi
+  version: "v0.0.4"
 
 ingress:
   enabled: true
