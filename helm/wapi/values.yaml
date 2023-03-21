@@ -5,7 +5,7 @@ replicaCount: 1
 image:
   repository: docker.io/youvegotmoxie/wapi
   pullPolicy: Always
-  tag: v0.0.7
+  tag: v0.0.8
 
 imagePullSecrets: []
 nameOverride: ""
@@ -32,7 +32,7 @@ service:
 
 podLabels:
   app: wapi
-  version: v0.0.7
+  version: v0.0.8
 
 ingress:
   enabled: true
