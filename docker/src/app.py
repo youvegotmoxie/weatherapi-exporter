@@ -5,10 +5,9 @@ from flask import request as flask_request
 from prometheus_client import Gauge, Info, make_wsgi_app
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
-apiBaseUrl = "https://api.weatherapi.com/v1"
-apiEndpoint = "current.json"
+apiBaseUrl = os.environ.get('API_BASE_URL', 'https://api.weatherapi.com/v1')
+apiEndpoint = os.environ.get('API_ENDPOINT', 'current.json')
 apiKey = os.environ.get('API_KEY')
-
 prometheus_labels = ['city', 'state']
 
 app = Flask(__name__)
@@ -42,7 +41,11 @@ def get_weather(location: str):
   wapi_custom_headers = flask_request.headers.get('X-WAPI-Custom', None)
 
   apiQuery = f"{apiBaseUrl}/{apiEndpoint}?key={apiKey}&q={location}&aqi=no"
-  request = requests.get(apiQuery)
+  try:
+    request = requests.get(apiQuery)
+  except Exception as exp:
+    return f"Request to weatherapi upstream failed: {exp}"
+
   requestBody = json.loads(request.text, object_hook=ObjectConvert)
 
   area_info = {
