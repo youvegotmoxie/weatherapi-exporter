@@ -42,8 +42,8 @@ def get_weather(location: str):
   requestBody = json.loads(request.text, object_hook=lambda d: namedtuple('x', d.keys())(*d.values()))
 
   area_info = {
-    "city": requestBody.location.name,
-    "state": requestBody.location.region
+    "city": f"{requestBody.location.name}",
+    "state": f"{requestBody.location.region}"
   }
 
   weather_info = {
