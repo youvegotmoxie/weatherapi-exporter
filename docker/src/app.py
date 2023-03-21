@@ -1,4 +1,5 @@
-import requests, os
+import requests, os, json
+from collections import namedtuple
 from flask import Flask, redirect
 from flask import request as flask_request
 from prometheus_client import Gauge, Info, make_wsgi_app
@@ -8,17 +9,19 @@ apiBaseUrl = "https://api.weatherapi.com/v1"
 apiEndpoint = "current.json"
 apiKey = os.environ.get('API_KEY')
 
+prometheus_labels = ['city', 'state']
+
 app = Flask(__name__)
 
 # TODO: make this not shit
-curTemp = Gauge("current_temperature", "Current temperature in F", labelnames=['city', 'state'])
-curWindSpeed = Gauge("current_wind_speed", "Current wind speed in MPH", labelnames=['city', 'state'])
-curWindDir = Gauge("current_wind_direction", "Current wind direction in degrees", labelnames=['city', 'state'])
-curPrecip = Gauge("current_precipitation", "Current precipitation levels in inches", labelnames=['city', 'state'])
-curHumid = Gauge("current_humidity", "Current humidity level", labelnames=['city', 'state'])
-curUV = Gauge("current_uv_index", "Current UV index", labelnames=['city', 'state'])
-curCloud = Gauge("current_cloud_cover", "Current Level of cloud cover", labelnames=['city', 'state'])
-curPressure = Gauge("current_baro_pressure", "Current barometric pressure", labelnames=['city', 'state'])
+curTemp = Gauge("current_temperature", "Current temperature in F", labelnames=prometheus_labels)
+curWindSpeed = Gauge("current_wind_speed", "Current wind speed in MPH", labelnames=prometheus_labels)
+curWindDir = Gauge("current_wind_direction", "Current wind direction in degrees", labelnames=prometheus_labels)
+curPrecip = Gauge("current_precipitation", "Current precipitation levels in inches", labelnames=prometheus_labels)
+curHumid = Gauge("current_humidity", "Current humidity level", labelnames=prometheus_labels)
+curUV = Gauge("current_uv_index", "Current UV index", labelnames=prometheus_labels)
+curCloud = Gauge("current_cloud_cover", "Current Level of cloud cover", labelnames=prometheus_labels)
+curPressure = Gauge("current_baro_pressure", "Current barometric pressure", labelnames=prometheus_labels)
 wInfo = Info('current_weather_all', 'Full weather details for location')
 
 @app.route("/", methods=['GET'])
@@ -34,26 +37,26 @@ def root():
 def get_weather(location: str):
   wapi_custom_headers = flask_request.headers.get('X-WAPI-Custom', None)
 
-  apiQuery = f"{apiBaseUrl}/{apiEndpoint}?key={apiKey}&q={location}&aqi=yes"
+  apiQuery = f"{apiBaseUrl}/{apiEndpoint}?key={apiKey}&q={location}&aqi=no"
   request = requests.get(apiQuery)
-  requestBody = request.json()
+  requestBody = json.loads(request.text, object_hook=lambda d: namedtuple('x', d.keys())(*d.values()))
 
   area_info = {
-    "city": f"{requestBody['location']['name']}",
-    "state": f"{requestBody['location']['region']}"
+    "city": requestBody.location.name,
+    "state": requestBody.location.region
   }
 
   weather_info = {
-    "temp": f"{requestBody['current']['temp_f']}",
-    "wind_speed": f"{requestBody['current']['wind_mph']}",
-    "wind_direction": f"{requestBody['current']['wind_degree']}",
-    "sky_conditions": f"{requestBody['current']['condition']['text']}",
-    "humidity": f"{requestBody['current']['humidity']}",
-    "precipitation": f"{requestBody['current']['precip_in']}",
-    "cloud_cover": f"{requestBody['current']['cloud']}",
-    "uv_index": f"{requestBody['current']['uv']}",
-    "visibility": f"{requestBody['current']['vis_miles']}",
-    "pressure": f"{requestBody['current']['pressure_in']}"
+    "temp": f"{requestBody.current.temp_f}",
+    "wind_speed": f"{requestBody.current.wind_mph}",
+    "wind_direction": f"{requestBody.current.wind_degree}",
+    "sky_conditions": f"{requestBody.current.condition.text}",
+    "humidity": f"{requestBody.current.humidity}",
+    "precipitation": f"{requestBody.current.precip_in}",
+    "cloud_cover": f"{requestBody.current.cloud}",
+    "uv_index": f"{requestBody.current.uv}",
+    "visibility": f"{requestBody.current.vis_miles}",
+    "pressure": f"{requestBody.current.pressure_in}"
   }
 
   city, state = area_info['city'], area_info['state']
