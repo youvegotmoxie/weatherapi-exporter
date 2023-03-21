@@ -13,6 +13,10 @@ prometheus_labels = ['city', 'state']
 
 app = Flask(__name__)
 
+class ObjectConvert(object):
+    def __init__(self, input_dict: dict) -> None:
+        self.__dict__.update(input_dict)
+
 # TODO: make this not shit
 curTemp = Gauge("current_temperature", "Current temperature in F", labelnames=prometheus_labels)
 curWindSpeed = Gauge("current_wind_speed", "Current wind speed in MPH", labelnames=prometheus_labels)
@@ -39,7 +43,7 @@ def get_weather(location: str):
 
   apiQuery = f"{apiBaseUrl}/{apiEndpoint}?key={apiKey}&q={location}&aqi=no"
   request = requests.get(apiQuery)
-  requestBody = json.loads(request.text, object_hook=lambda d: namedtuple('x', d.keys())(*d.values()))
+  requestBody = json.loads(request.text, object_hook=ObjectConvert)
 
   area_info = {
     "city": f"{requestBody.location.name}",
