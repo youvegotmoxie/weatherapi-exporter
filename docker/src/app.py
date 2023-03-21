@@ -14,7 +14,7 @@ prometheus_labels = ['city', 'state']
 app = Flask(__name__)
 
 class ObjectConvert(object):
-    def __init__(self, input_dict: dict) -> None:
+    def __init__(self, input_dict: dict) -> object:
         self.__dict__.update(input_dict)
 
 # TODO: make this not shit
