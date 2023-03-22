@@ -1,5 +1,4 @@
 import requests, os, json
-from collections import namedtuple
 from flask import Flask, redirect
 from flask import request as flask_request
 from prometheus_client import Gauge, Info, make_wsgi_app
