@@ -6,6 +6,9 @@ repos:
   hooks:
   - id: trailing-whitespace
   - id: check-added-large-files
+  - id: detect-aws-credentials
+  - id: detect-private-key
+  - id: end-of-file-fixer
 - repo: https://github.com/pre-commit/mirrors-autopep8
   rev: 'v2.0.2'
   hooks:
